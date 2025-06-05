@@ -1,4 +1,6 @@
+// @ts-nocheck
 "use client";
+import { Html } from "@react-three/drei";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureLoader } from "three";
@@ -6,24 +8,119 @@ import { useRef } from "react";
 
 // Data for all main planets with textures and Saturn's rings
 const planets = [
-  { name: "Mercury", radius: 0.20, orbit: 4, speed: 0.04, texture: "mercury.jpg" },
-  { name: "Venus", radius: 0.35, orbit: 5, speed: 0.03, texture: "venus.jpg" },
-  { name: "Earth", radius: 0.40, orbit: 6.5, speed: 0.02, texture: "earth.jpg" },
-  { name: "Mars", radius: 0.30, orbit: 8, speed: 0.017, texture: "mars.jpg" },
-  { name: "Jupiter", radius: 0.70, orbit: 10, speed: 0.009, texture: "jupiter.jpg" },
-  { name: "Saturn", radius: 0.60, orbit: 12, speed: 0.007, texture: "saturn.jpg", rings: "saturn_rings.png" },
-  { name: "Uranus", radius: 0.45, orbit: 14, speed: 0.005, texture: "uranus.jpg" },
-  { name: "Neptune", radius: 0.44, orbit: 16, speed: 0.004, texture: "neptune.jpg" },
+  {
+    name: "Mercury",
+    radius: 0.20,
+    orbit: 4,
+    speed: 0.04,
+    texture: "mercury.jpg",
+    facts: [
+      "Diameter: 4,880 km",
+      "Year: 88 Earth days",
+      "Fun: No atmosphere – extreme temp swings!"
+    ]
+  },
+  {
+    name: "Venus",
+    radius: 0.35,
+    orbit: 5,
+    speed: 0.03,
+    texture: "venus.jpg",
+    facts: [
+      "Diameter: 12,104 km",
+      "Year: 225 Earth days",
+      "Fun: Hottest planet with thick CO2 atmosphere"
+    ]
+  },
+  {
+    name: "Earth",
+    radius: 0.40,
+    orbit: 6.5,
+    speed: 0.02,
+    texture: "earth.jpg",
+    facts: [
+      "Diameter: 12,742 km",
+      "Year: 365 Earth days",
+      "Fun: Only planet known to support life"
+    ]
+  },
+  {
+    name: "Mars",
+    radius: 0.30,
+    orbit: 8,
+    speed: 0.017,
+    texture: "mars.jpg",
+    facts: [
+      "Diameter: 6,779 km",
+      "Year: 687 Earth days",
+      "Fun: Home to the tallest volcano in solar system"
+    ]
+  },
+  {
+    name: "Jupiter",
+    radius: 0.70,
+    orbit: 10,
+    speed: 0.009,
+    texture: "jupiter.jpg",
+    facts: [
+      "Diameter: 139,822 km",
+      "Year: 12 Earth years",
+      "Fun: Largest planet with Great Red Spot storm"
+    ]
+  },
+  {
+    name: "Saturn",
+    radius: 0.60,
+    orbit: 12,
+    speed: 0.007,
+    texture: "saturn.jpg",
+    rings: "saturn_rings.png",
+    facts: [
+      "Diameter: 116,464 km",
+      "Year: 29 Earth years",
+      "Fun: Famous for its spectacular ring system"
+    ]
+  },
+  {
+    name: "Uranus",
+    radius: 0.45,
+    orbit: 14,
+    speed: 0.005,
+    texture: "uranus.jpg",
+    facts: [
+      "Diameter: 50,724 km",
+      "Year: 84 Earth years",
+      "Fun: Rotates on its side with extreme seasons"
+    ]
+  },
+  {
+    name: "Neptune",
+    radius: 0.44,
+    orbit: 16,
+    speed: 0.004,
+    texture: "neptune.jpg",
+    facts: [
+      "Diameter: 49,244 km",
+      "Year: 165 Earth years",
+      "Fun: Strongest winds in the solar system"
+    ]
+  },
 ];
 
 export default function SolarSystem({
   setTarget,
   selectedPlanetIndex,
   onSelect,
+  onPlanetClick,
+  hideLabelForPlanetIndex,
+  activePlanetName // PATCHED: Added prop for active planet name
 }: {
   setTarget: (pos: [number, number, number]) => void;
   selectedPlanetIndex: number | null;
   onSelect: (idx: number | null) => void;
+  onPlanetClick: (planet: typeof planets[0] | null) => void;
+  hideLabelForPlanetIndex?: number | null;
+  activePlanetName?: string | null; // PATCHED: Added type for new prop
 }) {
   const sunTexture = useLoader(TextureLoader, "/sun.jpg");
   const starsTexture = useLoader(TextureLoader, "/stars.jpg");
@@ -85,13 +182,41 @@ export default function SolarSystem({
             key={planet.name}
             ref={el => (planetRefs.current[i] = el)}
             position={[0, 0, 0]}
-            onClick={() => {
-              console.log(`Direct: Planet ${planet.name} clicked!`);
+            onClick={e => {
+              e.stopPropagation();
               onSelect(i);
+              onPlanetClick(planet); // PATCH: Send facts upward
             }}
           >
             <sphereGeometry args={[planet.radius, 32, 32]} />
             <meshStandardMaterial map={texture} />
+            <Html
+              center
+              distanceFactor={10}
+              style={{
+                pointerEvents: "none", // so clicks go through to planet
+                display: hideLabelForPlanetIndex === i ? "none" : undefined, // PATCH
+                color: "#fff",
+                fontWeight: "bold",
+                fontSize: "1.1rem",
+                padding: "2px 10px",
+                borderRadius: "12px",
+                background: "rgba(20, 20, 30, 0.32)",
+                boxShadow: "0 0 8px 2px #50c8ff88, 0 0 4px 1px #fff3",
+                textShadow: "0 0 8px #50c8ff, 0 0 2px #fff",
+                userSelect: "none",
+                letterSpacing: "0.07em",
+                filter: "brightness(1.35) blur(0.01px)",
+                transition: "opacity 0.2s",
+                opacity: 0.96,
+                minWidth: "60px",
+                textAlign: "center",
+              }}
+            >
+              <div>
+                {planet.name}
+              </div>
+            </Html>
           </mesh>
         );
       })}

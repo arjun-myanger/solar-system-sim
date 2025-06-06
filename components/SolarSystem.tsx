@@ -5,6 +5,7 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureLoader } from "three";
 import { useRef } from "react";
+import TwinklingStars from "./TwinklingStars";
 
 // Data for all main planets with textures and Saturn's rings
 const planets = [
@@ -161,9 +162,15 @@ export default function SolarSystem({
 
   return (
     <>
+      <TwinklingStars count={900} radius={40} />
       <mesh raycast={() => null} onClick={() => onSelect(null)}>
         <sphereGeometry args={[40, 64, 64]} />
-        <meshBasicMaterial map={starsTexture} side={THREE.BackSide} transparent={true} opacity={0.99} />
+        <meshBasicMaterial
+          map={starsTexture}
+          side={THREE.BackSide}
+          transparent={true}
+          opacity={0.99}
+        />
       </mesh>
       {/* Sun */}
       <mesh onClick={() => onSelect(null)}>

@@ -115,14 +115,18 @@ export default function SolarSystem({
   onSelect,
   onPlanetClick,
   hideLabelForPlanetIndex,
-  activePlanetName // PATCHED: Added prop for active planet name
+  activePlanetName,
+  showMeteorShower,
+  onMeteorShowerEnd,
 }: {
   setTarget: (pos: [number, number, number]) => void;
   selectedPlanetIndex: number | null;
   onSelect: (idx: number | null) => void;
   onPlanetClick: (planet: typeof planets[0] | null) => void;
   hideLabelForPlanetIndex?: number | null;
-  activePlanetName?: string | null; // PATCHED: Added type for new prop
+  activePlanetName?: string | null;
+  showMeteorShower: boolean;
+  onMeteorShowerEnd: () => void;
 }) {
   const sunTexture = useLoader(TextureLoader, "/sun.jpg");
   const starsTexture = useLoader(TextureLoader, "/stars.jpg");
@@ -164,6 +168,14 @@ export default function SolarSystem({
   return (
     <>
       <TwinklingStars count={900} radius={40} />
+      {showMeteorShower && (
+        <MeteorShower
+          count={32}
+          duration={5}
+          onEnd={onMeteorShowerEnd}
+          color="#ffd06a"
+        />
+      )}
       <mesh raycast={() => null} onClick={() => onSelect(null)}>
         <sphereGeometry args={[40, 64, 64]} />
         <meshBasicMaterial
@@ -193,7 +205,7 @@ export default function SolarSystem({
             onClick={e => {
               e.stopPropagation();
               onSelect(i);
-              onPlanetClick(planet); // PATCH: Send facts upward
+              onPlanetClick(planet);
             }}
           >
             <sphereGeometry args={[planet.radius, 32, 32]} />
@@ -202,8 +214,8 @@ export default function SolarSystem({
               center
               distanceFactor={10}
               style={{
-                pointerEvents: "none", // so clicks go through to planet
-                display: hideLabelForPlanetIndex === i ? "none" : undefined, // PATCH
+                pointerEvents: "none",
+                display: hideLabelForPlanetIndex === i ? "none" : undefined,
                 color: "#fff",
                 fontWeight: "bold",
                 fontSize: "1.1rem",
@@ -250,4 +262,4 @@ export default function SolarSystem({
       )}
     </>
   );
-} 
+}

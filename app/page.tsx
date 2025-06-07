@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import SolarSystem from "../components/SolarSystem";
@@ -9,6 +9,12 @@ export default function Home() {
   const [selectedPlanetIndex, setSelectedPlanetIndex] = useState<number | null>(null);
   const [modalPlanet, setModalPlanet] = useState<any>(null);
   const controlsRef = useRef<any>(null);
+  const [showMeteorShower, setShowMeteorShower] = useState(false);
+
+  const triggerMeteorShower = useCallback(() => {
+    setShowMeteorShower(true);
+    setTimeout(() => setShowMeteorShower(false), 4000); // adjust duration if needed
+  }, []);
 
   useEffect(() => {
     if (controlsRef.current) {
@@ -20,6 +26,28 @@ export default function Home() {
   return (
     <>
       <div className="w-screen h-screen">
+        <button
+          onClick={triggerMeteorShower}
+          style={{
+            position: "absolute",
+            top: 32,
+            left: 32,
+            zIndex: 100,
+            background: "linear-gradient(90deg,#14355c,#21b3e6 55%,#182c3f)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "24px",
+            padding: "10px 26px",
+            fontSize: "1.08rem",
+            fontWeight: 700,
+            boxShadow: "0 0 8px #4be7ff88",
+            cursor: "pointer",
+            outline: "none",
+            letterSpacing: ".04em"
+          }}
+        >
+          Trigger Meteor Shower
+        </button>
         <Canvas camera={{ position: [0, 22, 0], fov: 45 }}>
           <SolarSystem
             setTarget={setTarget}
@@ -27,6 +55,8 @@ export default function Home() {
             onSelect={setSelectedPlanetIndex}
             onPlanetClick={planet => setModalPlanet(planet)}
             activePlanetName={modalPlanet?.name}
+            showMeteorShower={showMeteorShower}
+            onMeteorShowerEnd={() => setShowMeteorShower(false)}
           />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />

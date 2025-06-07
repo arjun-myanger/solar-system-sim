@@ -4,10 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 export default function MeteorShower({
-  count = 16,
-  duration = 3,
-  radius = 100,
-  color = "#bbf8ff",
+  count = 32,
+  duration = 6,
+  radius = 120,
+  color = "#ff00ff",
   onEnd
 }: {
   count?: number;
@@ -31,9 +31,9 @@ export default function MeteorShower({
       return {
         start: dir.clone().multiplyScalar(radius + 20),
         end: dir.clone().multiplyScalar(radius - 10),
-        delay: Math.random() * (duration * 0.6),
-        len: 7 + Math.random() * 10,
-        width: 0.11 + Math.random() * 0.15,
+        delay: 0,
+        len: 30 + Math.random() * 30, // <-- wider range for better visibility
+        width: 2 + Math.random() * 2, // <-- much wider for debug
       };
     });
   }, [count, duration, radius]);
@@ -90,24 +90,25 @@ function MeteorStreak({
     if (mesh.current) {
       mesh.current.position.copy(pos);
       mesh.current.visible = progress > 0 && progress < 1;
-      const material = mesh.current.material;
-      const newOpacity = 0.7 * Math.sin(Math.PI * progress);
-
-      if (Array.isArray(material)) {
-        material.forEach(mat => {
-          if ("opacity" in mat) (mat as THREE.Material & { opacity?: number }).opacity = newOpacity;
-        });
-      } else if ("opacity" in material) {
-        (material as THREE.Material & { opacity?: number }).opacity = newOpacity;
-      }
+      // Opacity debugging: just show full opacity for now
+      // const material = mesh.current.material;
+      // if (Array.isArray(material)) {
+      //   material.forEach(mat => { if ("opacity" in mat) mat.opacity = 1; });
+      // } else if ("opacity" in material) {
+      //   material.opacity = 1;
+      // }
     }
   });
 
-  // The cylinder will shoot along its Y axis; we don't need the group rotation line from before.
+  // Set orientation to point from start to end
+  const direction = end.clone().sub(start).normalize();
+  const axis = new THREE.Vector3(0, 1, 0);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+
   return (
-    <mesh ref={mesh}>
+    <mesh ref={mesh} quaternion={quaternion}>
       <cylinderGeometry args={[width, 0.01, len, 5]} />
-      <meshBasicMaterial color={color} transparent opacity={0.7} />
+      <meshBasicMaterial color={color} transparent opacity={1} />
     </mesh>
   );
 }

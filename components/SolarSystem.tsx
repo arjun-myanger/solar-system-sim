@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { TextureLoader } from "three";
 import { useRef } from "react";
 import TwinklingStars from "./TwinklingStars";
+import MeteorShower from "./MeteorShower";
 
 // Data for all main planets with textures and Saturn's rings
 const planets = [
